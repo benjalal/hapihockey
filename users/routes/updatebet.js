@@ -10,7 +10,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 module.exports = {
   method: 'PUT',
-  path: '/users/{id}/bets',
+  path: '/users/{userId}/bets',
   config: {
     tags: ['api'],
       description: 'Update a bet by its ID',
@@ -37,7 +37,7 @@ module.exports = {
 
 params: {
 
-          id : Joi.objectId()
+          userId : Joi.objectId()
                   .required()
                   .description('the ID of the user which modify his bet')
 
@@ -45,7 +45,7 @@ params: {
 
   },
   handler: function (request, reply) {
-    Bet.findByIdAndUpdate(request.payload.bet , request.payload, function (err, bet) {
+    Bet.findById(request.payload.betId , function (err, bet) {
       if (err) {
             return reply(Boom.badRequest(err));
       
@@ -57,7 +57,7 @@ params: {
           return reply('The bet you want to update is already closed')
       }
       else{ 
-        Bet.findByIdAndUpdate(request.params.bet_id, request.payload,function (err, bet) {
+        Bet.findByIdAndUpdate(request.payload.betId, request.payload,function (err, bet) {
                 if (err) {
             return reply(Boom.badRequest(err)) //400 error
       }

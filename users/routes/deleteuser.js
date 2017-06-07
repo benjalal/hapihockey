@@ -6,7 +6,7 @@ const Joi = require('joi');
 
 module.exports = {
   method: 'DELETE',
-  path: '/users/{id}',
+  path: '/users/{userId}',
   config: {
     tags: ['api'],
       description: 'Delete a user',
@@ -15,7 +15,7 @@ module.exports = {
       validate: {
     params: {
 
-          id : Joi.objectId()
+          userId : Joi.objectId()
                   .required()
                   .description('the ID of the user to fetch')
 
@@ -37,7 +37,7 @@ module.exports = {
             }
         },
     handler: (req, res) => {
-      User.findByIdAndRemove(req.params.id , function (err, user) {
+      User.findByIdAndRemove(req.params.userId , function (err, user) {
       if (!err && user) {
         //match.remove();
         return res({ message: "User deleted successfully"});

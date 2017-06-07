@@ -61,16 +61,16 @@ function computeBetScore(scoreDom, scoreExt, betDom, betExt) {
   var score = 0;
 
   // 1. 
-  if(perfectBet(scoreDom, scoreExt, betDom, betExt)) {
-    score = 6;
+  if(betWinnerIsMatchWinner(scoreDom, scoreExt, betDom, betExt)) {
+    score += 2;
   }
   //2
-  else if(goodWinnerandOneScore(scoreDom, scoreExt, betDom, betExt)){
-    score = 4;
+  if(goodWinnerandOneScore(scoreDom, scoreExt, betDom, betExt)){
+    score += 2;
   }
   //3
-  else if(betWinnerIsMatchWinner(scoreDom, scoreExt, betDom, betExt)){
-    score = 2;
+  if(perfectBet(scoreDom, scoreExt, betDom, betExt)){
+    score += 2;
   }
 
   return score;

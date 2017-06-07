@@ -10,7 +10,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 module.exports = {
   method: 'POST',
-  path: '/users/{id}/bets',
+  path: '/users/{userId}/bets',
   config: {
     tags: ['api'],
       description: 'Create a bet related to the user id',
@@ -23,7 +23,7 @@ module.exports = {
 
           params: {
 
-          id : Joi.objectId()
+          userId : Joi.objectId()
                   .required()
                   .description('the ID of the user which bets')
 
@@ -44,22 +44,33 @@ module.exports = {
             }
         },
     handler: (request, reply) => {
-      var bet = new Bet({user: request.params.id, match:request.payload.match, scoreDom:request.payload.scoreDom, 
-          scoreExt: request.payload.scoreExt});
+      var bet = new Bet({userId: request.params.userId, matchId:request.payload.matchId, scoreDom:request.payload.scoreDom, 
+          scoreExt: request.payload.scoreExt, closed : false});
        //console.log(request.payload.user);
-       bet.save(function (err, bet) {
-      if (!err) {
-        return reply(bet).created('/bet/' + bet._id); // HTTP 201
+       Match.findById(request.payload.matchId, function (err, match) {
+      if (err) {
+            return reply(Boom.badRequest(err)) //400 error
       }
-      return reply(Boom.badImplementation(err)); // 500 error
+      if(!match){
+          return reply(Boom.notFound('the match you want to bet on does not exist!')) //404 error
+      }
+      if(match.closed == true){
+          return reply('You can not bet on a match already finished!')
+      }
+      else{ 
+
+          bet.save(function (err, bet) {
+      if (!err) {
+        return reply(bet).created('/bet/' + bet._id); // HTTP 201 created
+      }
+      return reply(Boom.badRequest('Could not create the bet')); // 400 error
     });
 
-
-            User.findByIdAndUpdate(request.params.id, {
+    User.findByIdAndUpdate(request.params.userId, {
         
             $push: {bets: bet}, function (err, user) {
                 if (!err){
-                    return reply(user); // HTTP 201
+                    return reply(user); // HTTP 200
                 }
                 return reply(Boom.badImplementation(err)); // 500 error
             }
@@ -71,11 +82,11 @@ module.exports = {
     }
     );
 
-    Match.findByIdAndUpdate(request.payload.match, {
+    Match.findByIdAndUpdate(request.payload.matchId, {
             
             $push: {bets: bet}, function (err, match) {
                 if (!err){
-                    return reply(match); // HTTP 201
+                    return reply(match); // HTTP 200
                 }
                 return reply(Boom.badImplementation(err)); // 500 error
             }
@@ -85,7 +96,10 @@ module.exports = {
     function(err, model) {
         console.log(err);
     }
-    );  
+    );
+          
+      }
+    });  
         
     },
     // Add authentication to this route

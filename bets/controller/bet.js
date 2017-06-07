@@ -39,9 +39,9 @@ exports.getAll = {
       if (err) {
         return reply(Boom.badRequest(err)); //400 error
       }
-      if(!bet.length){
+      /*if(!bet.length){
           return reply('There are no bets') //HTTP 200
-      }
+      }*/
       return reply(bet); // HTTP 200
     })
   },
@@ -60,7 +60,7 @@ exports.create = {
 
   plugins: {
             'hapi-swagger': {
-                //security: [{ 'token': [] }],
+                
                 responses: {
                     '400': {
                         description: 'BadRequest'

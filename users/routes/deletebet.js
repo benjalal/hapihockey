@@ -9,7 +9,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 module.exports = {
   method: 'DELETE',
-  path: '/users/{id}/bets',
+  path: '/users/{userId}/bets',
   config: {
     tags: ['api'],
       description: 'Delete a bet',
@@ -18,14 +18,14 @@ module.exports = {
       validate: {
     params: {
 
-          id : Joi.objectId()
+          userId : Joi.objectId()
                   .required()
                   .description('ID of the user which deletes his bet')
 
         },
 
         payload:{
-          bet : Joi.objectId()
+          betId : Joi.objectId()
                       .required()
                       .description('ID of the bet')
         }
@@ -48,7 +48,7 @@ module.exports = {
             }
         },
   handler: function (request, reply) {
-    Bet.findByIdAndRemove(request.payload.bet , function (err, bet) {
+    Bet.findByIdAndRemove(request.payload.betId , function (err, bet) {
       if (!err && bet) {
         return reply({ message: "Bet deleted successfully"}); //HTTP 200
       }
@@ -59,7 +59,6 @@ module.exports = {
     });
   },
     // Add authentication to this route
-    // The user must have a scope of `admin`
     auth: {
       strategy: 'token'
     },

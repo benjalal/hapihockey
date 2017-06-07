@@ -11,12 +11,12 @@ module.exports = ([
     
     { method: 'POST', path: '/matchs', config:  Match.create }, 
 
-    { method: 'GET', path: '/matchs/{id}', config: Match.getOne}, 
+    { method: 'GET', path: '/matchs/{matchId}', config: Match.getOne}, 
 
-    { method: 'GET', path: '/matchs/{id}/bets', config: Match.getBet},
+    { method: 'GET', path: '/matchs/{matchId}/bets', config: Match.getBet},
   
-    { method: 'PUT', path: '/matchs/{id}', config: Match.update}, 
+    { method: 'PUT', path: '/matchs/{matchId}', config: Match.update}, 
 
-    { method: 'DELETE', path: '/matchs/{id}', config: Match.remove}, 
+    { method: 'DELETE', path: '/matchs/{matchId}', config: Match.remove}, 
 
   ]);

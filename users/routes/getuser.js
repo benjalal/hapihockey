@@ -31,14 +31,14 @@ module.exports = {
       User
         .find()
         // Deselect the version field
-        .select('-__v')
+        .select('-__v -bets')
         .exec((err, users) => {
           if (err) {
             return res(Boom.badRequest(err)); //400 error
           }
-          if (!users.length) {
+          /*if (!users.length) {
             return res('No users found!'); //HTTP 200
-          }
+          }*/
           return res(users); // HTTP 200
         })
     },

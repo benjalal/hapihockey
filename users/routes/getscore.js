@@ -11,7 +11,7 @@ var computeBetScore = require('../util/scoreFunctions').computeBetScore;
 
 module.exports = {
   method: 'GET',
-  path: '/users/{id}/score',
+  path: '/users/{userId}/score',
   config: {
     tags: ['api'],
       description: 'Compute the score for the bets of one user',
@@ -21,7 +21,7 @@ module.exports = {
       validate:{
           params: {
 
-          id : Joi.objectId()
+          userId : Joi.objectId()
                   .required()
                   .description('the ID of the user to fetch')
 
@@ -42,7 +42,7 @@ module.exports = {
             }
         },
     handler: (req, res) => {
-      var betDom=[];
+        var betDom=[];
         var betExt=[];
         var scoreDom=[];
         var scoreExt=[];
@@ -50,22 +50,22 @@ module.exports = {
         var totalpoints =0;
 
       Bet
-        .find({'user': req.params.id})
-        .select('_id scoreDom scoreExt match')
+        .find({'userId': req.params.userId})
+        .select('_id scoreDom scoreExt matchId')
         .populate({
-          path: 'match', select:'scoreDom scoreExt',
+          path: 'matchId', select:'scoreDom scoreExt',
         })
         .exec(function(err, bet){
             if(!err) {
 
               for (var i = 0; i < bet.length; i++) {
 
-                if(bet[i].match !== null){
+                if(bet[i].matchId !== null){
 
-                  betDom[i] = bet[i].scoreDom;
+                       betDom[i] = bet[i].scoreDom;
                        betExt[i] = bet[i].scoreExt;
-                       scoreDom[i] = bet[i].match.scoreDom;
-                       scoreExt[i] = bet[i].match.scoreExt;
+                       scoreDom[i] = bet[i].matchId.scoreDom;
+                       scoreExt[i] = bet[i].matchId.scoreExt;
 
                        matchpoints = computeBetScore(scoreDom[i], scoreExt[i],betDom[i], betExt[i]);
 
@@ -83,7 +83,7 @@ module.exports = {
                 }
               }
 
-                    User.findByIdAndUpdate(req.params.id, 
+                    User.findByIdAndUpdate(req.params.userId, 
                     {$set: {points: totalpoints}}, 
                     {safe: true, upsert: true},
                       function(err, model) {
