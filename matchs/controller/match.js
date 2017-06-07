@@ -40,11 +40,11 @@ exports.getAll = {
          .exec(function (err, match) {
       
         if (err) {
-            return reply(Boom.badRequest(err))  ; //400 error
+            return reply(Boom.badRequest(err)); //400 error
           }
-          if (!match.length) {
+          /*if (!match.length) {
             return reply('All the matchs are finished, you can not bet on them!');
-          }
+          }*/
           return reply(match); // HTTP 200
     });
   },
@@ -78,7 +78,7 @@ exports.getOne = {
 
         params: {
 
-          id : Joi.objectId()
+          matchId : Joi.objectId()
                   .required()
                   .description('the ID of the match to fetch')
 
@@ -86,7 +86,9 @@ exports.getOne = {
 
       },
   handler: function (request, reply) {
-    Match.findById(request.params.id , function (err, match) {
+    Match.findById(request.params.matchId)
+         .select('-limite -closed -__v -bets')
+         .exec(function (err, match) {
       if (err) {
         return reply(Boom.badRequest(err)); // 400 error
       }
@@ -107,7 +109,7 @@ tags: ['api'],
       validate:{
           params: {
 
-          id : Joi.objectId()
+          matchId : Joi.objectId()
                   .required()
                   .description('the ID of the match to fetch')
 
@@ -130,17 +132,17 @@ tags: ['api'],
     handler: (req, res) => {
       Bet
         //.findById(req.params.id)
-        .find({"match" : req.params.id })
+        .find({"matchId" : req.params.matchId })
         //.select('-_id domicile exterieur bets')
-        .select('-__v -match')
+        .select('-__v -matchId')
         //.populate({path: 'bets', select: '-__v'})
         .exec(function(err, bets){
             if(err) {
         return res(Boom.badRequest(err)); //400 error
       }
-      if(!bets.length){
+      /*if(!bets.length){
         return res('There are no bets for this match'); 
-      }
+      }*/
     return res(bets); //HTTP 200 
 });   
         
@@ -171,7 +173,8 @@ exports.create = {
   },
   handler: function (request, reply) {
     var datelimite = new Date(request.payload.date).getTime();
-    var match = new Match({date:request.payload.date, domicile: request.payload.domicile, exterieur:request.payload.exterieur, limite : datelimite});
+    var match = new Match({date:request.payload.date, domicile: request.payload.domicile, 
+      exterieur:request.payload.exterieur, limite : datelimite, closed : false});
     match.save(function (err, match) {
       if (!err) {
         return reply(match).created('/match/' + match._id); // HTTP 201
@@ -208,14 +211,14 @@ exports.update = {
     payload: updateMatchSchema,
     params: {
 
-          id : Joi.objectId()
+          matchId : Joi.objectId()
                   .required()
                   .description('the ID of the match to fetch')
 
         }
   },
   handler: function (request, reply) {
-    Match.findByIdAndUpdate(request.params.id , request.payload, function (err, match) {
+    Match.findByIdAndUpdate(request.params.matchId , request.payload, function (err, match) {
       if (err) {
         return reply(Boom.badRequest(err)); //400 error
       }
@@ -237,7 +240,7 @@ exports.remove = {
       validate: {
     params: {
 
-          id : Joi.objectId()
+          matchId : Joi.objectId()
                   .required()
                   .description('the ID of the match to fetch')
 
@@ -258,7 +261,7 @@ exports.remove = {
             }
         },
   handler: function (request, reply) {
-    Match.findByIdAndRemove(request.params.id , function (err, match) {
+    Match.findByIdAndRemove(request.params.matchId , function (err, match) {
       if (!err && match) {
         //match.remove();
         return reply({ message: "Match deleted successfully"});

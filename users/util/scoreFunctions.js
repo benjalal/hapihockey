@@ -62,11 +62,11 @@ function computeBetScore(scoreDom, scoreExt, betDom, betExt) {
     score += 2;
   }
   //2
-  else if(goodWinnerandOneScore(scoreDom, scoreExt, betDom, betExt)){
+  if(goodWinnerandOneScore(scoreDom, scoreExt, betDom, betExt)){
     score += 2;
   }
   //3
-  else if(perfectBet(scoreDom, scoreExt, betDom, betExt)){
+  if(perfectBet(scoreDom, scoreExt, betDom, betExt)){
     score += 2;
   }
 

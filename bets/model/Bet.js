@@ -11,7 +11,7 @@ const betModel = new Schema({
   score: { type: Number, min:0, defaultsTo:0 },
   matchId: { type: Schema.Types.ObjectId, ref: 'Match', notEmpty: true, required: true }, // It's a reference to the Match object
   userId: { type: Schema.Types.ObjectId, ref:'User', notEmpty: true, required: true},  // The User who's done the Bet
-  closed: { type: Boolean, defaultsTo: false},
+  closed: { type: Boolean, defaultsTo: false}, //close the bet
    
 });
 

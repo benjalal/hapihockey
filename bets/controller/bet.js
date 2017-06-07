@@ -39,9 +39,9 @@ exports.getAll = {
       if (err) {
         return reply(Boom.badRequest('Could not get the bet list')); //400 error
       }
-      if(!bet.length){
+      /*if(!bet.length){
           return reply('There are no bets') //HTTP 200
-      }
+      }*/
       return reply(bet); //HTTP 200
     })
   },
@@ -75,15 +75,26 @@ exports.create = {
        var bet = new Bet({scoreDom : request.payload.scoreDom, scoreExt: request.payload.scoreExt,
            matchId: request.payload.matchId, userId:request.payload.userId, closed : false });
        //console.log(request.payload.user);
-       bet.save(function (err, bet) {
+       Match.findById(request.payload.matchId, function (err, match) {
+      if (err) {
+            return reply(Boom.badRequest(err)) //400 error
+      }
+      if(!match){
+          return reply(Boom.notFound('the match you want to bet on does not exist!')) //404 error
+      }
+      if(match.closed == true){
+          return reply('You can not bet on a match already finished!')
+      }
+      else{ 
+
+          bet.save(function (err, bet) {
       if (!err) {
-        return reply(bet).created('/bet/' + bet._id); // HTTP 201
+        return reply(bet).created('/bet/' + bet._id); // HTTP 201 created
       }
       return reply(Boom.badRequest('Could not create the bet')); // 400 error
     });
 
-            
-            User.findByIdAndUpdate(request.payload.user, {
+    User.findByIdAndUpdate(request.payload.userId, {
         
             $push: {bets: bet}, function (err, user) {
                 if (!err){
@@ -99,7 +110,7 @@ exports.create = {
     }
     );
 
-    Match.findByIdAndUpdate(request.payload.match, {
+    Match.findByIdAndUpdate(request.payload.matchId, {
             
             $push: {bets: bet}, function (err, match) {
                 if (!err){
@@ -114,6 +125,13 @@ exports.create = {
         console.log(err);
     }
     );
+          
+      }
+    });
+       
+
+            
+            
         
   },
 };
@@ -145,7 +163,7 @@ exports.getOne = {
 
         params: {
 
-          bet_id : Joi.objectId()
+          betId : Joi.objectId()
                   .required()
                   .description('the ID of the bet to fetch')
 
@@ -153,7 +171,9 @@ exports.getOne = {
 
       },
   handler: function (request, reply) {
-    Bet.findById(request.params.bet_id, function (err, bet) {
+    Bet.findById(request.params.betId)
+       .select('-closed -__v ')
+       .exec(function (err, bet) {
       if (err) {
         return reply(Boom.badRequest('Could not get the bet'))
       }
@@ -193,7 +213,7 @@ tags: ['api'],
 
 params: {
 
-          bet_id : Joi.objectId()
+          betId : Joi.objectId()
                   .required()
                   .description('the ID of the BET to fetch')
 
@@ -201,7 +221,7 @@ params: {
 
   },
   handler: function (request, reply) {
-    Bet.findById(request.params.bet_id , function (err, bet) {
+    Bet.findById(request.params.betId , function (err, bet) {
       if (err) {
             return reply(Boom.badRequest(err)) //400 error
       }
@@ -213,7 +233,7 @@ params: {
       }
       else{ 
 
-          Bet.findByIdAndUpdate(request.params.bet_id, request.payload,function (err, bet) {
+          Bet.findByIdAndUpdate(request.params.betId, request.payload,function (err, bet) {
                 if (err) {
             return reply(Boom.badRequest(err)) //400 error
       }
@@ -238,7 +258,7 @@ exports.remove = {
       validate: {
     params: {
 
-          bet_id : Joi.objectId()
+          betId : Joi.objectId()
                   .required()
                   .description('the ID of the bet to fetch')
 
@@ -259,7 +279,7 @@ exports.remove = {
             }
         },
   handler: function (request, reply) {
-    Bet.findByIdAndRemove(request.params.bet_id , function (err, bet) {
+    Bet.findByIdAndRemove(request.params.betId , function (err, bet) {
       if (!err && bet) {
         return reply({ message: "Bet deleted successfully"});
       }

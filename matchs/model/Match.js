@@ -12,6 +12,7 @@ const matchModel = new Schema({
   scoreDom: { type: Number, min:0, defaultsTo:0},
   scoreExt: { type: Number, min:0, defaultsTo:0 },
   bets: [{type: Schema.Types.ObjectId, ref: 'Bet', unique:true}],
+  closed: { type: Boolean, defaultsTo: false} //close the match
 });
 
 

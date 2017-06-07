@@ -11,7 +11,7 @@ var computeBetScore = require('../util/scoreFunctions').computeBetScore;
 
 module.exports = {
   method: 'GET',
-  path: '/users/{id}',
+  path: '/users/{userId}',
   config: {
     tags: ['api'],
       description: 'Get one user',
@@ -20,7 +20,7 @@ module.exports = {
       validate: {
     params: {
 
-          id : Joi.objectId()
+          userId : Joi.objectId()
                   .required()
                   .description('the ID of the user to fetch')
 
@@ -47,7 +47,7 @@ module.exports = {
     handler: (req, res) => {
 
       User
-        .findById(req.params.id)
+        .findById(req.params.userId)
         // Deselect the bets and version fields
         .select('-__v -bets')
         .exec((err, user) => {

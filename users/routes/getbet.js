@@ -8,7 +8,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 module.exports = {
   method: 'GET',
-  path: '/users/{id}/bets',
+  path: '/users/{userId}/bets',
   config: {
     tags: ['api'],
       description: 'Get the bets for the user id',
@@ -18,7 +18,7 @@ module.exports = {
       validate:{
           params: {
 
-          id : Joi.objectId()
+          userId : Joi.objectId()
                   .required()
                   .description('the ID of the user to fetch')
 
@@ -41,16 +41,16 @@ module.exports = {
         },
     handler: (req, res) => {
         Bet
-        .find({"user": req.params.id, "closed": false})
-        .select('-password -user -admin -__v')
+        .find({"userId": req.params.userId})
+        .select('-password -user -admin -__v -closed')
         //.populate({path: 'match', select: 'domicile exterieur date'})
         .exec(function(err, bets){
             if(err) {
                 return res(Boom.badRequest(err)); //400 error
       }
-            if(!bets.length){
+            /*if(!bets.length){
                 return res('The user has no current bets!'); 
-            }
+            }*/
             return res(bets);
 });   
         

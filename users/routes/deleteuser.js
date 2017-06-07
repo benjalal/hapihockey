@@ -6,7 +6,7 @@ const Joi = require('joi');
 
 module.exports = {
   method: 'DELETE',
-  path: '/users/{id}',
+  path: '/users/{userId}',
   config: {
     tags: ['api'],
       description: 'Delete a user',
@@ -15,7 +15,7 @@ module.exports = {
       validate: {
     params: {
 
-          id : Joi.objectId()
+          userId : Joi.objectId()
                   .required()
                   .description('the ID of the user to fetch')
 
@@ -31,18 +31,21 @@ module.exports = {
                     },
                     '200':{ 
                       description: 'Success'
+                    },
+                    '404': {
+                      description: 'NotFound'
                     }
                 },
                 payloadType: 'form'
             }
         },
     handler: (req, res) => {
-      User.findByIdAndRemove(req.params.id , function (err, user) {
+      User.findByIdAndRemove(req.params.userId , function (err, user) {
       if (!err && user) {
         return res({ message: "User deleted successfully"});
       }
-      if (!err) {
-        return res(Boom.notFound()); //HTTP 404
+      if (!user) {
+        return res(Boom.notFound('The user does not exist!')); //HTTP 404
       }
       return res(Boom.badRequest("Could not delete user"));
     });
