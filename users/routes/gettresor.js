@@ -1,19 +1,22 @@
 'use strict';
 
 const User = require('../model/User');
+const Tresor = require('../../tresors/model/Tresor');
 const Boom = require('boom');
 const Joi = require('joi');
+Joi.objectId = require('joi-objectid')(Joi);
 
 module.exports = {
-  method: 'DELETE',
-  path: '/users/{userId}',
+  method: 'GET',
+  path: '/users/{userId}/tresors',
   config: {
     tags: ['api'],
-      description: 'Delete a user',
-      notes: 'Removes a user from the DB, must be logged as admin',
+      description: 'Get the tresors for the user id',
+      notes: 'Returns the all the tresors of one user',
 
-      validate: {
-    params: {
+
+      validate:{
+          params: {
 
           userId : Joi.objectId()
                   .required()
@@ -21,10 +24,9 @@ module.exports = {
 
         }
       },
-
   plugins: {
             'hapi-swagger': {
-              //security: [{ 'token': [] }],
+              
                 responses: {
                     '400': {
                         description: 'BadRequest'
@@ -37,16 +39,22 @@ module.exports = {
             }
         },
     handler: (req, res) => {
-      User.findByIdAndRemove(req.params.userId , function (err, user) {
-      if (!err && user) {
-        //match.remove();
-        return res({ message: "User deleted successfully"});
+      Tresor
+        .find({"userId": req.params.userId})
+        .select('-password -user -admin -__v -closed')
+        //.populate({path: 'match', select: 'domicile exterieur date'})
+        .exec(function(err, tresors){
+            if(err) {
+        return res(Boom.badRequest(err)); // 400 error
       }
-      if (!user) {
-        return res(Boom.notFound('The user does not exist!')); //error 404
-      }
-      return res(Boom.badRequest("Could not delete user"));
-    });
+            /*if(!bets.length){
+
+              return res(Boom.notFound('The user has no bets'))
+            }*/
+
+            return res(tresors);
+});   
+        
     },
     // Add authentication to this route
     // The user must have a scope of `admin`
@@ -57,3 +65,4 @@ module.exports = {
   
   }
 }
+

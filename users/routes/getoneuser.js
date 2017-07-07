@@ -1,7 +1,7 @@
 'use strict';
 
 const User = require('../model/User');
-const Bet = require('../../bets/model/Bet');
+//const Bet = require('../../bets/model/Bet');
 const Boom = require('boom');
 const Joi = require('joi');
 Joi.objectId = require('joi-objectid')(Joi);
@@ -11,7 +11,7 @@ var computeBetScore = require('../util/scoreFunctions').computeBetScore;
 
 module.exports = {
   method: 'GET',
-  path: '/users/{id}',
+  path: '/users/{userId}',
   config: {
     tags: ['api'],
       description: 'Get one user',
@@ -20,7 +20,7 @@ module.exports = {
       validate: {
     params: {
 
-          id : Joi.objectId()
+          userId : Joi.objectId()
                   .required()
                   .description('the ID of the user to fetch')
 
@@ -37,7 +37,7 @@ module.exports = {
                     '200':{ 
                       description: 'Success'
                     },
-                    '404': {
+                    '404':{
                       description: 'NotFound'
                     }
                 },
@@ -46,21 +46,25 @@ module.exports = {
         },
     handler: (req, res) => {
 
-      User
-        .findById(req.params.id)
+        User
+        .findById(req.params.userId)
         // Deselect the bets and version fields
         .select('-__v -bets')
-        .exec((err, user) => {
+        .exec((err, users) => {
           if (err) {
-            return  res(Boom.badRequest(err)); // 400 error
+            return  res(Boom.badRequest(err)); //400 error
           }
-          if(!user){
-            return res(Boom.notFound('The user does not exist!')); // 404 error
+          if(!users){
+            return res(Boom.notFound('The user does not exist!')); //404 error
           }
 
-          return res(user); // HTTP 200
+          return res(users);
         });
     },
-  
+  // Add authentication to this route
+    // The user must have a scope of `admin`
+    auth: {
+      strategy: 'token'
+    }
   }
 }

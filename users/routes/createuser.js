@@ -58,7 +58,7 @@ module.exports = {
             throw Boom.badRequest(err);
           }
           // If the user is saved successfully, issue a JWT
-          return res({ id_token: createToken(user) }).code(201);
+          return res({ id_token: createToken(user), userID: user._id }).code(201);
         });
       });
 

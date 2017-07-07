@@ -60,7 +60,7 @@ function validate(req, decoded, callback) {
     //var decoded = jwt.decode(token);
     console.log(credentials.scope);
   //verify if the user is an admin or if his id corresponds to the id in the request
-  if (credentials.scope !== 'admin' && credentials.id !== req.params.id) {
+  if (credentials.scope !== 'admin' && credentials.id !== req.params.userId) {
         return callback(null, false);
     }
 
